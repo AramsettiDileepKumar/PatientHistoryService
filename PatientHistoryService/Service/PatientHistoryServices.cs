@@ -94,21 +94,33 @@ namespace PatientHistoryService.Service
 
         private async Task<PatientHistory> GetPatientDetails(int patientId)
         {
-            string selectPatientQuery = @"SELECT PatientId, PatientName, Email FROM PatientHistory WHERE PatientId = @PatientId;";
-
-            using (var connection = _context.CreateConnection())
+            try
             {
-                return await connection.QueryFirstOrDefaultAsync<PatientHistory>(selectPatientQuery, new { PatientId = patientId });
+                string selectPatientQuery = @"SELECT PatientId, PatientName, Email FROM PatientHistory WHERE PatientId = @PatientId;";
+                using (var connection = _context.CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<PatientHistory>(selectPatientQuery, new { PatientId = patientId });
+                }
+            }
+            catch(Exception ex) 
+            {
+                throw new Exception(ex.Message); 
             }
         }
 
         private async Task<List<HistoryResponse>> GetPatientHistory(int patientId, int doctorId)
         {
-            string selectHistoryQuery = @"SELECT Issue, VisitsToDoctor FROM History WHERE PatientId = @PatientId AND DoctorId = @DoctorId;";
-
-            using (var connection = _context.CreateConnection())
+            try
             {
-                return (await connection.QueryAsync<HistoryResponse>(selectHistoryQuery, new { PatientId = patientId, DoctorId = doctorId })).ToList();
+                string selectHistoryQuery = @"SELECT Issue, VisitsToDoctor FROM History WHERE PatientId = @PatientId AND DoctorId = @DoctorId;";
+                using (var connection = _context.CreateConnection())
+                {
+                    return (await connection.QueryAsync<HistoryResponse>(selectHistoryQuery, new { PatientId = patientId, DoctorId = doctorId })).ToList();
+                }
+            }
+            catch(Exception ex) 
+            {
+                throw new Exception(ex.Message);
             }
         }
     }
