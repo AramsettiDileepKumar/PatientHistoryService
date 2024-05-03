@@ -12,12 +12,10 @@ namespace PatientHistoryService.Controllers
     public class PatientHistoryController : ControllerBase
     {
         private readonly IPatientHistory patientHistory;
-  
         public PatientHistoryController(IPatientHistory patientHistory)
         {
             this.patientHistory = patientHistory;
         }
-
         [Authorize(Roles = "Doctor")]
         [HttpPost("AddHistory")]
         public async Task<IActionResult> AddPatientHistory(HistoryRequest historyRequestDto)
@@ -25,19 +23,18 @@ namespace PatientHistoryService.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-                var result= await patientHistory.AddPatientHistory(historyRequestDto, userId);
+                var result = await patientHistory.AddPatientHistory(historyRequestDto, userId);
                 if (result != null)
                 {
                     return Ok(new { success = true, Message = "Patient History Added", Data = result });
                 }
-                return BadRequest(400);
+                return BadRequest(new { success = false, Message = "SomeThing Went Wrong" });
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                 return StatusCode(500, ex.Message);
+                return Ok(new { Success = false, Message = $"An Error Occured While Adding Patient History{ex.Message}" });
             }
         }
-
         [Authorize(Roles = "Doctor")]
         [HttpGet]
         public async Task<ActionResult<List<object>>> GetHistory(int PatientId)
@@ -50,11 +47,13 @@ namespace PatientHistoryService.Controllers
                 {
                     return Ok(new { success = true, Message = "Patient History Fetched", Data = result });
                 }
-                return BadRequest(400);
+                return BadRequest(new { success = false, Message = "SomeThing Went Wrong" });
             }
-            catch(Exception ex) 
-            { return StatusCode(500, ex.Message); }
-        }
+            catch (Exception ex)
+            {
+                return Ok(new { Success = false, Message = $"An Error Occured While Fetching Patient Details{ex.Message}" });
+            }
 
+        }
     }
 }
